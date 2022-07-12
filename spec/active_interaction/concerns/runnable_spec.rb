@@ -66,6 +66,7 @@ RSpec.describe ActiveInteraction::Runnable do
 
       include_examples 'set_callback examples', :validate
       include_examples 'set_callback examples', :execute
+      include_examples 'set_callback examples', :run
 
       context 'execute with composed interaction' do
         class WithFailingCompose # rubocop:disable Lint/ConstantDefinitionInBlock
@@ -113,6 +114,28 @@ RSpec.describe ActiveInteraction::Runnable do
           end
         end
       end
+    end
+
+    it 'invoke callbacks in a consistent order' do
+      call_traces = []
+      %i[validate execute run].shuffle.each do |callback_name|
+        klass.set_callback callback_name, :around do |_, block|
+          call_traces << "#{callback_name}_before".to_sym
+          block.call
+          call_traces << "#{callback_name}_after".to_sym
+        end
+      end
+      klass.send(:define_method, :execute) { rand }
+      klass.run
+      expect(call_traces).to eq(%i[
+                                  run_before
+                                  validate_before
+                                  validate_after
+                                  execute_before
+                                  execute_after
+                                  run_after
+                                ]
+                               )
     end
   end
 

@@ -8,50 +8,51 @@ If ActiveModel deals with your nouns, then ActiveInteraction handles your verbs.
 [![Version](https://img.shields.io/gem/v/active_interaction.svg?style=flat-square)](https://rubygems.org/gems/active_interaction)
 [![Test](https://img.shields.io/github/actions/workflow/status/AaronLasseigne/active_interaction/test.yml?label=Test&style=flat-square&branch=main)](https://github.com/AaronLasseigne/active_interaction/actions?query=workflow%3ATest)
 
-- [Installation](#installation)
-- [Basic usage](#basic-usage)
-  - [Validations](#validations)
-- [Filters](#filters)
-  - [Basic Filters](#basic-filters)
-    - [Array](#array)
-    - [Boolean](#boolean)
-    - [File](#file)
-    - [Hash](#hash)
-    - [String](#string)
-    - [Symbol](#symbol)
-    - [Dates and times](#dates-and-times)
-      - [Date](#date)
-      - [DateTime](#datetime)
-      - [Time](#time)
-    - [Numbers](#numbers)
-      - [Decimal](#decimal)
-      - [Float](#float)
-      - [Integer](#integer)
-  - [Advanced Filters](#advanced-filters)
-    - [Interface](#interface)
-    - [Object](#object)
-    - [Record](#record)
-- [Rails](#rails)
-  - [Setup](#setup)
-  - [Controller](#controller)
-    - [Index](#index)
-    - [Show](#show)
-    - [New](#new)
-    - [Create](#create)
-    - [Destroy](#destroy)
-    - [Edit](#edit)
-    - [Update](#update)
-- [Advanced usage](#advanced-usage)
-  - [Callbacks](#callbacks)
-  - [Composition](#composition)
-  - [Defaults](#defaults)
-  - [Descriptions](#descriptions)
-  - [Errors](#errors)
-  - [Forms](#forms)
-  - [Shared input options](#shared-input-options)
-  - [Optional inputs](#optional-inputs)
-  - [Translations](#translations)
-- [Credits](#credits)
+- [ActiveInteraction](#activeinteraction)
+  - [Installation](#installation)
+  - [Basic usage](#basic-usage)
+    - [Validations](#validations)
+  - [Filters](#filters)
+    - [Basic Filters](#basic-filters)
+      - [Array](#array)
+      - [Boolean](#boolean)
+      - [File](#file)
+      - [Hash](#hash)
+      - [String](#string)
+      - [Symbol](#symbol)
+      - [Dates and times](#dates-and-times)
+        - [Date](#date)
+        - [DateTime](#datetime)
+        - [Time](#time)
+      - [Numbers](#numbers)
+        - [Decimal](#decimal)
+        - [Float](#float)
+        - [Integer](#integer)
+    - [Advanced Filters](#advanced-filters)
+      - [Interface](#interface)
+      - [Object](#object)
+      - [Record](#record)
+  - [Rails](#rails)
+    - [Setup](#setup)
+    - [Controller](#controller)
+      - [Index](#index)
+      - [Show](#show)
+      - [New](#new)
+      - [Create](#create)
+      - [Destroy](#destroy)
+      - [Edit](#edit)
+      - [Update](#update)
+  - [Advanced usage](#advanced-usage)
+    - [Callbacks](#callbacks)
+    - [Composition](#composition)
+    - [Defaults](#defaults)
+    - [Descriptions](#descriptions)
+    - [Errors](#errors)
+    - [Forms](#forms)
+    - [Shared input options](#shared-input-options)
+    - [Optional inputs](#optional-inputs)
+    - [Translations](#translations)
+  - [Credits](#credits)
 
 [API Documentation][]
 
@@ -1068,6 +1069,12 @@ class Increment < ActiveInteraction::Base
     puts '<<<'
   }
 
+  set_callback :run, :around, lambda { |_interaction, block|
+    puts "before run"
+    block.call
+    puts "after run"
+  }
+
   def execute
     puts 'executing'
     x + 1
@@ -1084,6 +1091,7 @@ Increment.run!(x: 1)
 ```
 
 In order, the available callbacks are `filter`, `validate`, and `execute`.
+An extra callback `run` surrounds all three of the above.
 You can set `before`, `after`, or `around` on any of them.
 
 ### Composition

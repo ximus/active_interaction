@@ -14,6 +14,7 @@ module ActiveInteraction
     include ActiveModel::Validations
 
     included do
+      define_callbacks :run
       define_callbacks :execute
     end
 
@@ -69,13 +70,15 @@ module ActiveInteraction
     # @return (see #result=)
     # @return [nil]
     def run
-      return self.result = nil unless valid?
+      run_callbacks(:run) do
+        return self.result = nil unless valid?
 
-      self.result = run_callbacks(:execute) do
-        execute
-      rescue Interrupt => e
-        errors.backtrace = e.errors.backtrace || e.backtrace
-        errors.merge!(e.errors)
+        self.result = run_callbacks(:execute) do
+          execute
+        rescue Interrupt => e
+          errors.backtrace = e.errors.backtrace || e.backtrace
+          errors.merge!(e.errors)
+        end
       end
     end
 
