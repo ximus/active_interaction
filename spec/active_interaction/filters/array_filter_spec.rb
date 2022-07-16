@@ -82,6 +82,24 @@ RSpec.describe ActiveInteraction::ArrayFilter, :filter do
     context 'with a nested filter' do
       let(:block) { proc { array } }
 
+      context 'with a filter that converts its value' do
+        let!(:nested_converting_filter) do
+          Class.new(ActiveInteraction::Filter) do
+            # not sure how to "deregister" this filter after this context
+            register :nested_converting_filter
+            def convert(value)
+              ["#{value}-converted", nil]
+            end
+          end
+        end
+        let(:block) { proc { nested_converting_filter } }
+        let(:value) { ['foo'] }
+
+        it 'returns the converted value' do
+          expect(result.value).to eql ['foo-converted']
+        end
+      end
+
       context 'with an Array' do
         let(:child_value) { [] }
         let(:value) { [child_value, child_value] }

@@ -46,20 +46,24 @@ module ActiveInteraction
 
       value = input.value
       error = nil
-      children = []
 
-      unless filters.empty?
-        value = value.map do |item|
-          result = filters[:'0'].process(item, context)
-          children.push(result)
-          result.value
-        end
-      end
+      value, children = process_with_filter(value, context) if filters.any?
 
-      ArrayInput.new(self, value: value, error: error, children: children, index_errors: index_errors?)
+      ArrayInput.new(self, value: value, error: error, children: children || [], index_errors: index_errors?)
     end
 
     private
+
+    def process_with_filter(value, context)
+      values = []
+      children = []
+      value.each do |item|
+        processed = filters[:'0'].process(item, context)
+        children.push(processed)
+        values.push(processed.value)
+      end
+      [values, children]
+    end
 
     def index_errors?
       klass = 'ActiveRecord'.safe_constantize
