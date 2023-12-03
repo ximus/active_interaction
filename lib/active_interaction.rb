@@ -48,6 +48,7 @@ require_relative 'active_interaction/filters/record_filter'
 require_relative 'active_interaction/filters/string_filter'
 require_relative 'active_interaction/filters/symbol_filter'
 require_relative 'active_interaction/filters/time_filter'
+require_relative 'active_interaction/filters/union_filter'
 
 require_relative 'active_interaction/base'
 
