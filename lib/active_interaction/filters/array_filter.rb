@@ -41,8 +41,10 @@ module ActiveInteraction
     def process(value, context)
       input = super
 
-      return ArrayInput.new(self, value: input.value, error: input.errors.first) if input.errors.any?
-      return ArrayInput.new(self, value: default(context), error: input.errors.first) if input.value.nil?
+      # either we have errors or we are dealing with the default value
+      if input.errors.any? || input.value.nil?
+        return ArrayInput.new(self, value: input.value, error: input.errors.first)
+      end
 
       value = input.value
       error = nil
