@@ -35,6 +35,12 @@ module ActiveInteraction
       #
       # @return [Symbol]
       attr_reader :type
+
+      def inspect
+        "#{self.class}(name: #{name.inspect}, type: #{type.inspect}, filter: #{filter.class}##{format('0x00%x',
+          (filter.object_id << 1)
+        )}, object_id: #{format('0x00%x', (object_id << 1))})"
+      end
     end
   end
 end

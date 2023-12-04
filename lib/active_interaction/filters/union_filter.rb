@@ -39,25 +39,28 @@ module ActiveInteraction
 
     register :union
 
-    def process(value, context)
-      value, error = cast(value, context)
+    def process(original_value, context)
+      value, error = cast(original_value, context)
       return Input.new(self, value: value, error: error) if error
 
-      # either we found a filter during matches?,
-      if @matched_filter
-        @matched_filter.process(super, context)
-      else # or we are dealing with the default value
+      filters.each_value do |filter|
+        input = filter.process(value, context)
+        return Input.new(self, value: input.value) unless input.errors.any?
+      end
+
+      if original_value.nil? && default?
         Input.new(self, value: value)
+      else
+        Input.new(self, value: value, error: Filter::Error.new(self, :invalid_type))
       end
     end
 
     private
 
     def matches?(value)
-      @matched_filter = find_filter(value)
-      !!@matched_filter
-    rescue NoMethodError
-      false
+      filters.values.any? do |filter|
+        filter.send(:matches?, value)
+      end
     end
 
     # rubocop:disable Style/MissingRespondToMissing
@@ -94,12 +97,8 @@ module ActiveInteraction
       nil
     end
 
-    def matched_filter_or_find(value)
-      @matched_filter || find_filter(value)
-    end
-
     def find_filter(value)
-      filters.find { |filter| filter.matches?(value) }
+      filters.values.find { |filter| filter.matches?(value) }
     end
   end
 end
